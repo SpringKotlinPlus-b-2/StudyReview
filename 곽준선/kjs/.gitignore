@@ -1,0 +1,14 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+### 실행 환경
+envs-constants.yml
+
+### jwt 발급 관련
+### application-jwt.yml - 정말 배포까지 올라가진 않을 것이므로 주석 처리
+
+### IntelliJ로 DB에 연결하면서 생성된 설정 정보인 듯하다.
+.idea/dataSources.xml
