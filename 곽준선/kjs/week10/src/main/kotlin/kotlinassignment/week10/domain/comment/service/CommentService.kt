@@ -3,63 +3,32 @@ package kotlinassignment.week10.domain.comment.service
 import kotlinassignment.week10.domain.comment.dto.CommentCreateRequest
 import kotlinassignment.week10.domain.comment.dto.CommentResponse
 import kotlinassignment.week10.domain.comment.dto.CommentUpdateRequest
-import kotlinassignment.week10.domain.comment.model.Comment
-import kotlinassignment.week10.domain.comment.model.toResponse
-import kotlinassignment.week10.domain.comment.model.updateFrom
-import kotlinassignment.week10.domain.comment.repository.CommentRepository
-import kotlinassignment.week10.domain.exception.IncorrectRelatedEntityIdException
-import kotlinassignment.week10.domain.exception.ModelNotFoundException
-import kotlinassignment.week10.domain.exception.UnauthorizedAccessException
-import kotlinassignment.week10.domain.member.repository.MemberRepository
-import kotlinassignment.week10.domain.toDoCard.repository.ToDoCardRepository
 import kotlinassignment.week10.infra.security.MemberPrincipal
-import org.springframework.data.repository.findByIdOrNull
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
-@Service
-class CommentService(
-    private val toDoCardIdRepository: ToDoCardRepository,
-    private val commentRepository: CommentRepository,
-    private val memberRepository: MemberRepository,
-) {
+interface CommentService {
 
-    @Transactional
-    fun createComment(toDoCardId: Long, request: CommentCreateRequest, memberPrincipal: MemberPrincipal): CommentResponse {
-        val targetToDoCard = toDoCardIdRepository.findByIdOrNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
-        val member = memberRepository.findByIdOrNull(memberPrincipal.id) ?:throw ModelNotFoundException("Member", memberPrincipal.id)
+    /**
+     * @param toDoCardId (type: Long) Comment와 연관된 ToDoCard의 id
+     * @param request (type: CommentCreateRequest) Comment 생성을 위한 DTO
+     * @param memberPrincipal (type: MemberPrincipal) 인증된 member의 정보를 담고 있는 객체
+     * @return (type: CommentResponse) Comment 생성 후 생성된 Comment를 보여주기 위해 반환하는 데이터
+     */
+    fun createComment(toDoCardId: Long, request: CommentCreateRequest, memberPrincipal: MemberPrincipal): CommentResponse
 
-        return Comment(
-            content = request.content,
-            member = member,
-            createdDateTime = request.createdDateTime,
-            toDoCard = targetToDoCard,
-        ).let { commentRepository.save(it).toResponse() }
-    }
+    /**
+     * @param toDoCardId (type: Long) Comment와 연관된 ToDoCard의 id
+     * @param commentId (type: Long) 수정할 Comment의 id
+     * @param request (type: CommentUpdateRequest) Comment 수정을 위한 DTO
+     * @param memberPrincipal (type: MemberPrincipal) 인증된 member의 정보를 담고 있는 객체
+     * @return (type: CommentResponse) Comment 수정 후 수정된 Comment를 보여주기 위해 반환하는 데이터
+     */
+    fun updateComment(toDoCardId: Long, commentId: Long, request: CommentUpdateRequest, memberPrincipal: MemberPrincipal): CommentResponse
 
-    @Transactional
-    fun updateComment(
-        toDoCardId: Long,
-        commentId: Long,
-        request: CommentUpdateRequest,
-        memberPrincipal: MemberPrincipal
-    ): CommentResponse {
-        val targetComment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
-
-        return targetComment
-            .also { if (it.toDoCard.id != toDoCardId) throw IncorrectRelatedEntityIdException("Comment", commentId, "ToDoCard", toDoCardId) } // Comment의 toDoCard 참조 FetchType.Lazy 지정하지 않을 경우 불필요하게 ToDoCard select 쿼리가 한 번 더 나감
-            .also { if (it.member.id != memberPrincipal.id) throw UnauthorizedAccessException() }
-            .also { it.updateFrom(request) }
-            .let { commentRepository.save(it).toResponse() }
-    }
-
-    @Transactional
-    fun deleteComment(toDoCardId: Long, commentId: Long, memberPrincipal: MemberPrincipal): Unit {
-        val targetComment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
-
-        targetComment
-            .also { if (it.toDoCard.id != toDoCardId) throw IncorrectRelatedEntityIdException("Comment", commentId, "ToDoCard", toDoCardId) }
-            .also { if (it.member.id != memberPrincipal.id) throw UnauthorizedAccessException() }
-            .let { commentRepository.delete(it) }
-    }
+    /**
+     * @param toDoCardId (type: Long) Comment와 연관된 ToDoCard의 id
+     * @param commentId (type: Long) 삭제할 Comment의 id
+     * @param memberPrincipal (type: MemberPrincipal) 인증된 member의 정보를 담고 있는 객체
+     * @return 없음
+     */
+    fun deleteComment(toDoCardId: Long, commentId: Long, memberPrincipal: MemberPrincipal): Unit
 }

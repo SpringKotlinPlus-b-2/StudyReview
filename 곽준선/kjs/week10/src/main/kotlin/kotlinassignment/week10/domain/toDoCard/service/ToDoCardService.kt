@@ -1,92 +1,50 @@
 package kotlinassignment.week10.domain.toDoCard.service
 
-import kotlinassignment.week10.domain.comment.model.toResponse
-import kotlinassignment.week10.domain.comment.repository.CommentRepository
-import kotlinassignment.week10.domain.exception.ModelNotFoundException
-import kotlinassignment.week10.domain.exception.UnauthorizedAccessException
-import kotlinassignment.week10.domain.member.repository.MemberRepository
 import kotlinassignment.week10.domain.toDoCard.dto.*
-import kotlinassignment.week10.domain.toDoCard.model.*
-import kotlinassignment.week10.domain.toDoCard.repository.ToDoCardRepository
 import kotlinassignment.week10.infra.security.MemberPrincipal
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.repository.findByIdOrNull
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
-@Service
-class ToDoCardService(
-    private val toDoCardRepository: ToDoCardRepository,
-    private val commentRepository: CommentRepository,
-    private val memberRepository: MemberRepository,
-) {
+interface ToDoCardService {
 
-    fun getAllToDoCards(userName: String?, sortOrder: String): List<ToDoCardResponse> {
-        return toDoCardRepository
-            .findAllFilterByUserNameAndOrderBySortOrder(userName, sortOrder)
-            .map(ToDoCard::toResponse)
-    }
+    /**
+     * @param userName (type: String?) ToDoCard 조회 시 userName으로 필터링할 경우 필요
+     * @param sortOrder (type: String) ToDoCard 조회 시 정렬할 방향
+     * @return (type: List<ToDoCardResponse>) 조회한 ToDoCard List를 반환
+     */
+    fun getAllToDoCards(userName: String?, sortOrder: String): List<ToDoCardResponse>
 
-    fun getToDoCardById(toDoCardId: Long?): ToDoCardResponseWithComments {
-        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId!!)
+    /**
+     * @param toDoCardId (type: Long) 조회할 ToDoCard의 id
+     * @return (type: ToDoCardResponseWithComments) parameter로 받은 ToDoCard id와 일치하는 id를 가진 ToDoCard 조회 결과 반환
+     */
+    fun getToDoCardById(toDoCardId: Long): ToDoCardResponseWithComments
 
-        /*
-         TODO ToDoCard가 참조하고 있는 comments를 사용하지 않고, comment repository 쪽에서 따로 Page 처리된 Comment들을 가져옴
-          ToDoCard에서 직접 comments를 꺼내올 때도 paging 처리되게 하려면 어떻게 해야하는지 알아보기
-         */
-        val pageRequest = PageRequest.of(0, 100) // TODO 이 부분은 임시로 값을 넣어놨음, 추후 제대로 처리할 것
-        val commentPage =
-            commentRepository.findByToDoCardOrderByCreatedDateTimeDesc(toDoCard, pageRequest)
+    /**
+     * @param request (type: ToDoCardCreateRequest) ToDoCard 생성을 위한 DTO
+     * @param memberPrincipal (type: MemberPrincipal) 인증된 member의 정보를 담고 있는 객체
+     * @return (type: ToDoCardResponse) ToDoCard 생성 후 생성된 ToDoCard를 보여주기 위해 반환하는 데이터
+     */
+    fun createToDoCard(request: ToDoCardCreateRequest, memberPrincipal: MemberPrincipal): ToDoCardResponse
 
-        return toDoCard.toResponseWithComments(commentPage.map { it.toResponse() }.toList())
-    }
+    /**
+     * @param toDoCardId (type: Long) 수정할 ToDoCard의 id
+     * @param request (type: ToDoCardUpdateRequest) ToDoCard 수정을 위한 DTO
+     * @param memberPrincipal (type: MemberPrincipal) 인증된 member의 정보를 담고 있는 객체
+     * @return (type: ToDoCardResponse) ToDoCard 수정 후 수정된 ToDoCard를 보여주기 위해 반환하는 데이터
+     */
+    fun updateToDoCard(toDoCardId: Long, request: ToDoCardUpdateRequest, memberPrincipal: MemberPrincipal): ToDoCardResponse
 
-    @Transactional
-    fun createToDoCard(
-        request: ToDoCardCreateRequest,
-        memberPrincipal: MemberPrincipal,
-    ): ToDoCardResponse {
+    /**
+     * @param toDoCardId (type: Long) 삭제할 ToDoCard의 id
+     * @param memberPrincipal (type: MemberPrincipal) 인증된 member의 정보를 담고 있는 객체
+     * @return (type: Unit) 없음
+     */
+    fun deleteToDoCard(toDoCardId: Long, memberPrincipal: MemberPrincipal): Unit
 
-        val member = memberRepository.findByIdOrNull(memberPrincipal.id) ?: throw ModelNotFoundException("Member", memberPrincipal.id)
-
-        return ToDoCard(
-            title = request.title,
-            description = request.description,
-            member = member,
-            createdDateTime = request.createdDateTime,
-        ).let { toDoCardRepository.save(it).toResponse() }
-    }
-
-    @Transactional
-    fun updateToDoCard(toDoCardId: Long?, request: ToDoCardUpdateRequest, memberPrincipal: MemberPrincipal): ToDoCardResponse {
-        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId)
-            ?.also { if (it.member.id != memberPrincipal.id) throw UnauthorizedAccessException() }
-            ?: throw ModelNotFoundException("ToDoCard", toDoCardId!!)
-
-        val (title: String?, description: String?) = request
-        toDoCard.title = title
-        toDoCard.description = description
-
-        return toDoCardRepository.save(toDoCard).toResponse()
-    }
-
-    @Transactional
-    fun deleteToDoCard(toDoCardId: Long?, memberPrincipal: MemberPrincipal): Unit {
-        // 이 부분이 있어도 select query는 한 번만 나간다. 없는 id로 delete 시도하는 경우 확실한 에러 메시지를 주기 위함
-        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId)
-            ?.also { if (it.member.id != memberPrincipal.id) throw UnauthorizedAccessException() }
-            ?: throw ModelNotFoundException("ToDoCard", toDoCardId!!)
-
-        return toDoCardRepository.delete(toDoCard)
-    }
-
-    @Transactional
-    fun completeToDoCard(toDoCardId: Long?, request: ToDoCardIsCompletePatchRequest, memberPrincipal: MemberPrincipal): ToDoCardResponse {
-        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId)
-            ?.also { if (it.member.id != memberPrincipal.id) throw UnauthorizedAccessException() }
-            ?: throw ModelNotFoundException("ToDoCard", toDoCardId!!)
-        toDoCard.isComplete = request.isComplete
-
-        return toDoCard.toResponse()
-    }
+    /**
+     * @param toDoCardId (type: Long) 완료 처리할 ToDoCard의 id
+     * @param request (type: ToDoCardIsCompletePatchRequest) ToDoCard 완료 여부 수정을 위한 DTO
+     * @param memberPrincipal (type: MemberPrincipal) 인증된 member의 정보를 담고 있는 객체
+     * @return (type: ToDoCardResponse) ToDoCard 완료 여부 수정 후 수정된 ToDoCard를 보여주기 위해 반환하는 데이터
+     */
+    fun completeToDoCard(toDoCardId: Long, request: ToDoCardIsCompletePatchRequest, memberPrincipal: MemberPrincipal): ToDoCardResponse
 }
