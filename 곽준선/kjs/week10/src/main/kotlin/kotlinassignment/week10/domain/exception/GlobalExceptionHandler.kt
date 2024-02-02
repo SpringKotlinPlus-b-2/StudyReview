@@ -14,17 +14,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
-    @ExceptionHandler(ModelNotFoundException::class)
-    fun handleModelNotFoundException(e: ModelNotFoundException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity
-            .status(HttpStatus.NOT_FOUND)
-            .body(ErrorResponse(message = e.message))
-    }
-
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleHttpMessageNotReadableException(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
-            .status(HttpStatus.NOT_FOUND)
+            .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse(message = "요청의 body 중 형식이 적절하지 않은 데이터가 입력되었습니다."))
         // POST /todocards 요청이 들어갈 때
         // body의 createdDateTime에 LocalDateTime 형식이 아닌 데이터(ex.단순 String) 입력 시도 때문에 추가한 exception handler
@@ -41,37 +34,51 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
-    fun handleBindException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse> {
+    fun handleMethodArgumentTypeMismatchException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse(message = "요청의 path variable 중 형식이 적절하지 않은 데이터가 입력되었습니다."))
     }
 
     @ExceptionHandler(ConstraintViolationException::class)
-    fun handleBindException(e: ConstraintViolationException): ResponseEntity<ErrorResponse> {
+    fun handleConstraintViolationException(e: ConstraintViolationException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse(message = e.message))
     }
 
-    @ExceptionHandler(PasswordMismatchException::class)
-    fun handlePasswordMismatchException(e: PasswordMismatchException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity
-            .status(HttpStatus.FORBIDDEN)
-            .body(ErrorResponse(message = e.message))
-    }
-
     @ExceptionHandler(IncorrectRelatedEntityIdException::class)
-    fun handlePasswordMismatchException(e: IncorrectRelatedEntityIdException): ResponseEntity<ErrorResponse> {
+    fun handleIncorrectRelatedEntityIdException(e: IncorrectRelatedEntityIdException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse(message = e.message))
     }
 
     @ExceptionHandler(StringLengthOutOfRangeException::class)
-    fun handlePasswordMismatchException(e: StringLengthOutOfRangeException): ResponseEntity<ErrorResponse> {
+    fun handleStringLengthOutOfRangeException(e: StringLengthOutOfRangeException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse(message = e.message))
+    }
+
+    @ExceptionHandler(DuplicatedEmailException::class)
+    fun handleDuplicatedEmailException(e: DuplicatedEmailException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse(message = e.message))
+    }
+
+    @ExceptionHandler(ModelNotFoundException::class)
+    fun handleModelNotFoundException(e: ModelNotFoundException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(ErrorResponse(message = e.message))
+    }
+
+    @ExceptionHandler(PasswordMismatchException::class)
+    fun handlePasswordMismatchException(e: PasswordMismatchException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
             .body(ErrorResponse(message = e.message))
     }
 

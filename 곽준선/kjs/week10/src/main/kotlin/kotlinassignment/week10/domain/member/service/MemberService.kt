@@ -1,5 +1,6 @@
 package kotlinassignment.week10.domain.member.service
 
+import kotlinassignment.week10.domain.exception.DuplicatedEmailException
 import kotlinassignment.week10.domain.member.dto.MemberLoginRequest
 import kotlinassignment.week10.domain.member.dto.MemberLoginResponse
 import kotlinassignment.week10.domain.member.dto.MemberSignUpRequest
@@ -31,7 +32,7 @@ class MemberService(
     @Transactional
     fun signUp(request: MemberSignUpRequest): Unit {
         if (memberRepository.existsByEmail(request.email)) {
-            throw IllegalStateException("Email is already in use")
+            throw DuplicatedEmailException()
         }
 
         memberRepository.save(
