@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus
 interface ErrorCode {
     val httpStatus:HttpStatus
     val message:String
-    fun getName():String; // enum클래스에 name을 변경
+    fun getName():String;
+
+    fun getMessage():String;
 }
 
