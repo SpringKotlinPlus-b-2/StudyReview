@@ -8,6 +8,7 @@ import kotlinassignment.week10.domain.member.repository.MemberRepository
 import kotlinassignment.week10.domain.toDoCard.dto.*
 import kotlinassignment.week10.domain.toDoCard.model.*
 import kotlinassignment.week10.domain.toDoCard.repository.ToDoCardRepository
+import kotlinassignment.week10.infra.aop.EvaluateExecutionTime
 import kotlinassignment.week10.infra.security.MemberPrincipal
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
@@ -27,6 +28,7 @@ class ToDoCardServiceImpl(
             .map(ToDoCard::toResponse)
     }
 
+    @EvaluateExecutionTime
     override fun getToDoCardById(toDoCardId: Long): ToDoCardResponseWithComments {
         val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
 
