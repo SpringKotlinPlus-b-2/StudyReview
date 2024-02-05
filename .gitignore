@@ -2,9 +2,10 @@ HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+!이동욱/2024-post/src/main/**/build/
+!이동욱/2024-post/src/test/**/build/
 **/.DS_Store
+**/application.yml
 
 ### STS ###
 .apt_generated
@@ -15,8 +16,8 @@ build/
 .springBeans
 .sts4-cache
 bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+!이동욱/2024-post/src/main/**/bin/
+!이동욱/2024-post/src/test/**/bin/
 
 ### IntelliJ IDEA ###
 .idea
@@ -24,8 +25,8 @@ bin/
 *.iml
 *.ipr
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+!이동욱/2024-post/src/main/**/out/
+!이동욱/2024-post/src/test/**/out/
 
 ### NetBeans ###
 /nbproject/private/
