@@ -7,7 +7,6 @@ import kotlinassignment.week10.domain.comment.model.Comment
 import kotlinassignment.week10.domain.comment.model.toResponse
 import kotlinassignment.week10.domain.comment.model.updateFrom
 import kotlinassignment.week10.domain.comment.repository.CommentRepository
-import kotlinassignment.week10.domain.exception.IncorrectRelatedEntityIdException
 import kotlinassignment.week10.domain.exception.ModelNotFoundException
 import kotlinassignment.week10.domain.exception.UnauthorizedAccessException
 import kotlinassignment.week10.domain.member.repository.MemberRepository
@@ -44,10 +43,10 @@ class CommentServiceImpl(
         request: CommentUpdateRequest,
         memberPrincipal: MemberPrincipal
     ): CommentResponse {
-        val targetComment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
+        val targetComment =
+            commentRepository.findByIdAndToDoCard_Id(commentId, toDoCardId) ?: throw ModelNotFoundException("Comment", commentId)
 
         return targetComment
-            .also { if (it.toDoCard.id != toDoCardId) throw IncorrectRelatedEntityIdException("Comment", commentId, "ToDoCard", toDoCardId) } // Comment의 toDoCard 참조 FetchType.Lazy 지정하지 않을 경우 불필요하게 ToDoCard select 쿼리가 한 번 더 나감
             .also { if (it.member.id != memberPrincipal.id) throw UnauthorizedAccessException() }
             .also { it.updateFrom(request) }
             .let { commentRepository.save(it).toResponse() }
@@ -55,10 +54,10 @@ class CommentServiceImpl(
 
     @Transactional
     override fun deleteComment(toDoCardId: Long, commentId: Long, memberPrincipal: MemberPrincipal): Unit {
-        val targetComment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("Comment", commentId)
+        val targetComment =
+            commentRepository.findByIdAndToDoCard_Id(commentId, toDoCardId) ?: throw ModelNotFoundException("Comment", commentId)
 
         targetComment
-            .also { if (it.toDoCard.id != toDoCardId) throw IncorrectRelatedEntityIdException("Comment", commentId, "ToDoCard", toDoCardId) }
             .also { if (it.member.id != memberPrincipal.id) throw UnauthorizedAccessException() }
             .let { commentRepository.delete(it) }
     }
