@@ -22,9 +22,9 @@ class ToDoCardServiceImpl(
     private val memberRepository: MemberRepository,
 ): ToDoCardService {
 
-    override fun getAllToDoCards(userName: String?, sortOrder: String): List<ToDoCardResponse> {
+    override fun getToDoCardList(title: String?, memberNickname: String?, sortOrder: String): List<ToDoCardResponse> {
         return toDoCardRepository
-            .findAllFilterByUserNameAndOrderBySortOrder(userName, sortOrder)
+            .findAllFilteringByTitleOrUserNameWithSortOrder(title, memberNickname, sortOrder)
             .map(ToDoCard::toResponse)
     }
 

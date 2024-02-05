@@ -4,8 +4,9 @@ import kotlinassignment.week10.domain.toDoCard.model.ToDoCard
 
 interface CustomToDoCardRepository {
 
-    fun findAllFilterByUserNameAndOrderBySortOrder(
-        userName: String?,
+    fun findAllFilteringByTitleOrUserNameWithSortOrder(
+        title: String?,
+        memberNickname: String?,
         sortOrder: String,
     ): List<ToDoCard>
 }
