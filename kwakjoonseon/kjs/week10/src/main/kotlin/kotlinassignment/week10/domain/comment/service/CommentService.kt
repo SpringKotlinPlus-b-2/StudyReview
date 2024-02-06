@@ -4,8 +4,18 @@ import kotlinassignment.week10.domain.comment.dto.CommentCreateRequest
 import kotlinassignment.week10.domain.comment.dto.CommentResponse
 import kotlinassignment.week10.domain.comment.dto.CommentUpdateRequest
 import kotlinassignment.week10.infra.security.MemberPrincipal
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 interface CommentService {
+
+    /**
+     * TODO - 주석 정리
+     * @param toDoCardId (type: Long) Comment와 연관된 ToDoCard의 id
+     * @param pageable (type: CommentCreateRequest)
+     * @return (type: Page<CommentResponse>)
+     */
+    fun getCommentList(toDoCardId: Long, pageable: Pageable): Page<CommentResponse>
 
     /**
      * @param toDoCardId (type: Long) Comment와 연관된 ToDoCard의 id

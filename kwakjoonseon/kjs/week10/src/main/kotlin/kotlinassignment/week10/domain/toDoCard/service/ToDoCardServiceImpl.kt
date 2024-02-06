@@ -10,7 +10,9 @@ import kotlinassignment.week10.domain.toDoCard.model.*
 import kotlinassignment.week10.domain.toDoCard.repository.ToDoCardRepository
 import kotlinassignment.week10.infra.aop.EvaluateExecutionTime
 import kotlinassignment.week10.infra.security.MemberPrincipal
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,25 +24,26 @@ class ToDoCardServiceImpl(
     private val memberRepository: MemberRepository,
 ): ToDoCardService {
 
-    override fun getToDoCardList(title: String?, memberNickname: String?, sortOrder: String): List<ToDoCardResponse> {
+    override fun getToDoCardList(title: String?, memberNickname: String?, pageable: Pageable): Page<ToDoCardResponse> {
         return toDoCardRepository
-            .findAllFilteringByTitleOrUserNameWithSortOrder(title, memberNickname, sortOrder)
+            .findAllFilteringByTitleOrUserNameWithSortOrder(title, memberNickname, pageable)
             .map(ToDoCard::toResponse)
     }
 
     @EvaluateExecutionTime
-    override fun getToDoCardById(toDoCardId: Long): ToDoCardResponseWithComments {
+    override fun getToDoCardById(toDoCardId: Long): ToDoCardResponse {
         val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
 
         /*
          TODO ToDoCard가 참조하고 있는 comments를 사용하지 않고, comment repository 쪽에서 따로 Page 처리된 Comment들을 가져옴
-          ToDoCard에서 직접 comments를 꺼내올 때도 paging 처리되게 하려면 어떻게 해야하는지 알아보기
+          - ToDoCard에서 직접 comments를 꺼내올 때도 paging 처리되게 하려면 어떻게 해야하는지 알아보기
+          - comment 가져오는 API 및 흐름 분리하였음
+          // val pageRequest = PageRequest.of(0, 50) // 이 부분은 임시로 값을 넣어놨음, 추후 제대로 처리할 것
+          // val commentPage =
+          // commentRepository.findByToDoCardOrderByCreatedDateTimeDesc(toDoCard, pageRequest)
          */
-        val pageRequest = PageRequest.of(0, 100) // TODO 이 부분은 임시로 값을 넣어놨음, 추후 제대로 처리할 것
-        val commentPage =
-            commentRepository.findByToDoCardOrderByCreatedDateTimeDesc(toDoCard, pageRequest)
 
-        return toDoCard.toResponseWithComments(commentPage.map { it.toResponse() }.toList())
+        return toDoCard.toResponse()
     }
 
     @Transactional
