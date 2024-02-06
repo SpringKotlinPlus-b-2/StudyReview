@@ -17,7 +17,7 @@ class CustomToDoCardRepositoryImpl : CustomToDoCardRepository, QueryDslSupport()
 
     private val toDoCard = QToDoCard.toDoCard
 
-    override fun findAllFilteringByTitleOrUserNameWithSortOrder(
+    override fun findAllFilteringByTitleOrUserName(
         title: String?,
         memberNickname: String?,
         pageable: Pageable,
@@ -31,9 +31,9 @@ class CustomToDoCardRepositoryImpl : CustomToDoCardRepository, QueryDslSupport()
             .where(whereClause)
             .orderBy(
                 when (pageable.sort.first()?.direction) {
-                    DESC -> toDoCard.createdDateTime.desc()
-                    ASC -> toDoCard.createdDateTime.asc()
-                    null -> toDoCard.createdDateTime.desc()
+                    DESC -> toDoCard.id.desc()
+                    ASC -> toDoCard.id.asc()
+                    null -> toDoCard.id.desc()
                 }
             ).fetch()
 

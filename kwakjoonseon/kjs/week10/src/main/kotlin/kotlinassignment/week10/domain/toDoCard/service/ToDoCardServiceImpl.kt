@@ -1,17 +1,14 @@
 package kotlinassignment.week10.domain.toDoCard.service
 
-import kotlinassignment.week10.domain.comment.model.toResponse
-import kotlinassignment.week10.domain.comment.repository.CommentRepository
 import kotlinassignment.week10.domain.exception.ModelNotFoundException
 import kotlinassignment.week10.domain.exception.UnauthorizedAccessException
 import kotlinassignment.week10.domain.member.repository.MemberRepository
 import kotlinassignment.week10.domain.toDoCard.dto.*
-import kotlinassignment.week10.domain.toDoCard.model.*
+import kotlinassignment.week10.domain.toDoCard.model.ToDoCard
 import kotlinassignment.week10.domain.toDoCard.repository.ToDoCardRepository
 import kotlinassignment.week10.infra.aop.EvaluateExecutionTime
 import kotlinassignment.week10.infra.security.MemberPrincipal
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -20,13 +17,12 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class ToDoCardServiceImpl(
     private val toDoCardRepository: ToDoCardRepository,
-    private val commentRepository: CommentRepository,
     private val memberRepository: MemberRepository,
 ): ToDoCardService {
 
     override fun getToDoCardList(title: String?, memberNickname: String?, pageable: Pageable): Page<ToDoCardResponse> {
         return toDoCardRepository
-            .findAllFilteringByTitleOrUserNameWithSortOrder(title, memberNickname, pageable)
+            .findAllFilteringByTitleOrUserName(title, memberNickname, pageable)
             .map(ToDoCard::toResponse)
     }
 
@@ -60,38 +56,37 @@ class ToDoCardServiceImpl(
             member = member,
             createdDateTime = request.createdDateTime,
         ).let { toDoCardRepository.save(it).toResponse() }
+
     }
 
     @Transactional
     override fun updateToDoCard(toDoCardId: Long, request: ToDoCardUpdateRequest, memberPrincipal: MemberPrincipal): ToDoCardResponse {
-        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId)
-            ?.also { if (it.member.id != memberPrincipal.id) throw UnauthorizedAccessException() }
-            ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
+        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
+        check(toDoCard.member.id != memberPrincipal.id) { throw UnauthorizedAccessException() }
 
         val (title: String?, description: String?) = request
         toDoCard.title = title
         toDoCard.description = description
 
-        return toDoCardRepository.save(toDoCard).toResponse()
+        return toDoCard.toResponse()
+    }
+
+    @Transactional
+    override fun completeToDoCard(toDoCardId: Long, request: ToDoCardIsCompletePatchRequest, memberPrincipal: MemberPrincipal): ToDoCardResponse {
+        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
+        check(toDoCard.member.id != memberPrincipal.id) { throw UnauthorizedAccessException() }
+
+        toDoCard.isComplete = request.isComplete
+
+        return toDoCard.toResponse()
     }
 
     @Transactional
     override fun deleteToDoCard(toDoCardId: Long, memberPrincipal: MemberPrincipal): Unit {
         // 이 부분이 있어도 select query는 한 번만 나간다. 없는 id로 delete 시도하는 경우 확실한 에러 메시지를 주기 위함
-        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId)
-            ?.also { if (it.member.id != memberPrincipal.id) throw UnauthorizedAccessException() }
-            ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
+        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
+        check(toDoCard.member.id != memberPrincipal.id) { throw UnauthorizedAccessException() }
 
         return toDoCardRepository.delete(toDoCard)
-    }
-
-    @Transactional
-    override fun completeToDoCard(toDoCardId: Long, request: ToDoCardIsCompletePatchRequest, memberPrincipal: MemberPrincipal): ToDoCardResponse {
-        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId)
-            ?.also { if (it.member.id != memberPrincipal.id) throw UnauthorizedAccessException() }
-            ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
-        toDoCard.isComplete = request.isComplete
-
-        return toDoCard.toResponse()
     }
 }

@@ -8,11 +8,10 @@ import org.springframework.data.domain.Pageable
 interface ToDoCardService {
 
     /**
-     * TODO - 주석 정리
-     * @param title (type: String?)
+     * @param title (type: String?) ToDoCard 조회 시 title로 필터링할 경우 필요
      * @param memberNickname (type: String?) ToDoCard 조회 시 member의 nickname으로 필터링할 경우 필요
-     * @param pageable (type: Pageable)
-     * @return (type: Page<ToDoCardResponse>) 조회한 ToDoCard의 Page를 ToDoCardResponse의 Page로 변환하여 반환
+     * @param pageable (type: Pageable) ToDoCard 목록을 가져올 때 필요한 page number, page size, sort 등의 정보를 담은 pageable
+     * @return (type: Page<ToDoCardResponse>) ToDoCard 데이터 목록을 Page 형태로 담아 반환
      */
     fun getToDoCardList(title: String?, memberNickname: String?, pageable: Pageable): Page<ToDoCardResponse>
 

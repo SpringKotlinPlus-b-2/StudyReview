@@ -1,11 +1,7 @@
 package kotlinassignment.week10.domain.comment.service
 
-import kotlinassignment.week10.domain.comment.dto.CommentCreateRequest
-import kotlinassignment.week10.domain.comment.dto.CommentResponse
-import kotlinassignment.week10.domain.comment.dto.CommentUpdateRequest
+import kotlinassignment.week10.domain.comment.dto.*
 import kotlinassignment.week10.domain.comment.model.Comment
-import kotlinassignment.week10.domain.comment.model.toResponse
-import kotlinassignment.week10.domain.comment.model.updateFrom
 import kotlinassignment.week10.domain.comment.repository.CommentRepository
 import kotlinassignment.week10.domain.exception.ModelNotFoundException
 import kotlinassignment.week10.domain.exception.UnauthorizedAccessException
@@ -49,22 +45,19 @@ class CommentServiceImpl(
         request: CommentUpdateRequest,
         memberPrincipal: MemberPrincipal
     ): CommentResponse {
-        val targetComment =
-            commentRepository.findByIdAndToDoCard_Id(commentId, toDoCardId) ?: throw ModelNotFoundException("Comment", commentId)
+        val targetComment = commentRepository.findByIdAndToDoCard_Id(commentId, toDoCardId)
+            ?: throw ModelNotFoundException("Comment", commentId)
+        check(targetComment.member.id != memberPrincipal.id) { throw UnauthorizedAccessException() }
 
-        return targetComment
-            .also { if (it.member.id != memberPrincipal.id) throw UnauthorizedAccessException() }
-            .also { it.updateFrom(request) }
-            .let { commentRepository.save(it).toResponse() }
+        return targetComment.updateFrom(request).toResponse()
     }
 
     @Transactional
     override fun deleteComment(toDoCardId: Long, commentId: Long, memberPrincipal: MemberPrincipal): Unit {
-        val targetComment =
-            commentRepository.findByIdAndToDoCard_Id(commentId, toDoCardId) ?: throw ModelNotFoundException("Comment", commentId)
+        val targetComment = commentRepository.findByIdAndToDoCard_Id(commentId, toDoCardId)
+            ?: throw ModelNotFoundException("Comment", commentId)
+        check(targetComment.member.id != memberPrincipal.id) { throw UnauthorizedAccessException() }
 
-        targetComment
-            .also { if (it.member.id != memberPrincipal.id) throw UnauthorizedAccessException() }
-            .let { commentRepository.delete(it) }
+        commentRepository.delete(targetComment)
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable
 
 interface CustomToDoCardRepository {
 
-    fun findAllFilteringByTitleOrUserNameWithSortOrder(
+    fun findAllFilteringByTitleOrUserName(
         title: String?,
         memberNickname: String?,
         pageable: Pageable,

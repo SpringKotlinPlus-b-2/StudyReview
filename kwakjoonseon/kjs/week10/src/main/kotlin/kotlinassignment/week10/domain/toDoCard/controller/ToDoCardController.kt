@@ -78,18 +78,6 @@ class ToDoCardController(
             .body(toDoCardResponse)
     }
 
-    @DeleteMapping("/{toDoCardId}")
-    fun deleteToDoCard(
-        @PathVariable toDoCardId: Long,
-        @AuthenticationPrincipal memberPrincipal: MemberPrincipal,
-    ): ResponseEntity<Unit> {
-        toDoCardService.deleteToDoCard(toDoCardId, memberPrincipal)
-
-        return ResponseEntity
-            .status(HttpStatus.NO_CONTENT)
-            .build()
-    }
-
     @PatchMapping("/{toDoCardId}")
     fun completeToDoCard(
         @PathVariable toDoCardId: Long,
@@ -101,6 +89,18 @@ class ToDoCardController(
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(toDoCardResponse)
+    }
+
+    @DeleteMapping("/{toDoCardId}")
+    fun deleteToDoCard(
+        @PathVariable toDoCardId: Long,
+        @AuthenticationPrincipal memberPrincipal: MemberPrincipal,
+    ): ResponseEntity<Unit> {
+        toDoCardService.deleteToDoCard(toDoCardId, memberPrincipal)
+
+        return ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .build()
     }
 
     companion object {
