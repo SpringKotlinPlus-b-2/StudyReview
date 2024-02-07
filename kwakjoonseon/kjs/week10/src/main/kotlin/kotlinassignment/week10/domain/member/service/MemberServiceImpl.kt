@@ -21,19 +21,14 @@ class MemberServiceImpl(
 
     override fun login(request: MemberLoginRequest): MemberLoginResponse {
         val user = memberRepository.findByEmail(request.email) ?: throw InvalidCredentialException()
-
-        if (!passwordEncoder.matches(request.password, user.password)) {
-            throw InvalidCredentialException()
-        }
+        check(passwordEncoder.matches(request.password, user.password)) { throw InvalidCredentialException() }
 
         return MemberLoginResponse(accessToken = jwtUtil.generateAccessToken(user.id.toString(), user.email))
     }
 
     @Transactional
     override fun signUp(request: MemberSignUpRequest): Unit {
-        if (memberRepository.existsByEmail(request.email)) {
-            throw DuplicatedEmailException()
-        }
+        check(!memberRepository.existsByEmail(request.email)) { throw DuplicatedEmailException() }
 
         memberRepository.save(
             Member(

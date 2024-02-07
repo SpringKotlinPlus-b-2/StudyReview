@@ -8,6 +8,10 @@ interface CustomToDoCardRepository {
 
     fun findAllFilteringByTitleOrUserName(
         title: String?,
+        category: String?,
+        tag: String?,
+        state: String?,
+        dayDuration: String?,
         memberNickname: String?,
         pageable: Pageable,
     ): Page<ToDoCard>

@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component
 
 @Component
 class CustomAuthenticationEntryPoint: AuthenticationEntryPoint {
+    // TODO - 현재 커스텀 예외가 아닌 모든 예외가 이 AuthenticationEntryPoint의 예외로 바꿔치기 당하고 있음
+    //  - GlobalExceptionHandler에서 커스텀 예외로 잡지 못한 모든 RuntimeException을 잡은 후 500 에러로 다시 던지도록 임시 조치 해둠
+    //  - AuthenticationEntryPoint에 대해서 더 학습할 것
 
     override fun commence(
         request: HttpServletRequest,
