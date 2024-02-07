@@ -88,4 +88,11 @@ class GlobalExceptionHandler {
             .status(HttpStatus.FORBIDDEN)
             .body(ErrorResponse(message = e.message))
     }
+
+    @ExceptionHandler(RuntimeException::class)
+    fun handleRuntimeException(e: RuntimeException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ErrorResponse(message = "서버 내부에서 알 수 없는 오류 발생"))
+    }
 }

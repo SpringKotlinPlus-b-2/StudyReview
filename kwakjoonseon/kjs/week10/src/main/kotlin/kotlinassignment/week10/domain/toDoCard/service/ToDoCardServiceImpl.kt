@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
 class ToDoCardServiceImpl(
@@ -28,7 +29,7 @@ class ToDoCardServiceImpl(
 
     @EvaluateExecutionTime
     override fun getToDoCardById(toDoCardId: Long): ToDoCardResponse {
-        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
+        val toDoCard = toDoCardRepository.findByIdAndDeletedAtIsNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
 
         /*
          TODO ToDoCard가 참조하고 있는 comments를 사용하지 않고, comment repository 쪽에서 따로 Page 처리된 Comment들을 가져옴
@@ -54,15 +55,14 @@ class ToDoCardServiceImpl(
             title = request.title,
             description = request.description,
             member = member,
-            createdDateTime = request.createdDateTime,
         ).let { toDoCardRepository.save(it).toResponse() }
 
     }
 
     @Transactional
     override fun updateToDoCard(toDoCardId: Long, request: ToDoCardUpdateRequest, memberPrincipal: MemberPrincipal): ToDoCardResponse {
-        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
-        check(toDoCard.member.id != memberPrincipal.id) { throw UnauthorizedAccessException() }
+        val toDoCard = toDoCardRepository.findByIdAndDeletedAtIsNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
+        check(toDoCard.member.id == memberPrincipal.id) { throw UnauthorizedAccessException() }
 
         val (title: String?, description: String?) = request
         toDoCard.title = title
@@ -73,8 +73,8 @@ class ToDoCardServiceImpl(
 
     @Transactional
     override fun completeToDoCard(toDoCardId: Long, request: ToDoCardIsCompletePatchRequest, memberPrincipal: MemberPrincipal): ToDoCardResponse {
-        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
-        check(toDoCard.member.id != memberPrincipal.id) { throw UnauthorizedAccessException() }
+        val toDoCard = toDoCardRepository.findByIdAndDeletedAtIsNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
+        check(toDoCard.member.id == memberPrincipal.id) { throw UnauthorizedAccessException() }
 
         toDoCard.isComplete = request.isComplete
 
@@ -84,9 +84,10 @@ class ToDoCardServiceImpl(
     @Transactional
     override fun deleteToDoCard(toDoCardId: Long, memberPrincipal: MemberPrincipal): Unit {
         // 이 부분이 있어도 select query는 한 번만 나간다. 없는 id로 delete 시도하는 경우 확실한 에러 메시지를 주기 위함
-        val toDoCard = toDoCardRepository.findByIdOrNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
-        check(toDoCard.member.id != memberPrincipal.id) { throw UnauthorizedAccessException() }
+        val toDoCard = toDoCardRepository.findByIdAndDeletedAtIsNull(toDoCardId) ?: throw ModelNotFoundException("ToDoCard", toDoCardId)
+        check(toDoCard.member.id == memberPrincipal.id) { throw UnauthorizedAccessException() }
 
-        return toDoCardRepository.delete(toDoCard)
+        toDoCard.deletedAt = LocalDateTime.now()
+        toDoCard.comments.map { it.deletedAt = LocalDateTime.now() } // TODO N + 1 문제
     }
 }

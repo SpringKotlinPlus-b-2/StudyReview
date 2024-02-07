@@ -5,20 +5,20 @@ import java.time.LocalDateTime
 
 data class ToDoCardResponse(
     val id: Long,
+    val createdAt: LocalDateTime,
     val title: String,
     val description: String?,
     val memberNickname: String,
-    val createdDateTime: LocalDateTime,
     val isComplete: Boolean,
 )
 
 fun ToDoCard.toResponse(): ToDoCardResponse {
     return ToDoCardResponse(
         id = this.id!!,
+        createdAt = this.createdAt,
         title = this.title,
         description = this.description,
         memberNickname = this.member.nickname,
-        createdDateTime = this.createdDateTime,
         isComplete = this.isComplete,
     )
 }

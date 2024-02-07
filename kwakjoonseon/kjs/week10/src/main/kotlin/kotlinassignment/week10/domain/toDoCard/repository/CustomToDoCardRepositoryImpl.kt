@@ -23,7 +23,10 @@ class CustomToDoCardRepositoryImpl : CustomToDoCardRepository, QueryDslSupport()
         pageable: Pageable,
     ): Page<ToDoCard> {
 
-        val whereClause = BooleanBuilder().and(titleContains(title)).and(memberNicknameEq(memberNickname))
+        val whereClause = BooleanBuilder()
+            .and(titleContains(title))
+            .and(memberNicknameEq(memberNickname))
+            .and(deletedAtIsNull())
 
         val totalCount = queryFactory.select(toDoCard.count()).from(toDoCard).where(whereClause).fetchOne() ?: 0L
 
@@ -46,5 +49,9 @@ class CustomToDoCardRepositoryImpl : CustomToDoCardRepository, QueryDslSupport()
 
     private fun memberNicknameEq(memberNickname: String?): BooleanExpression? {
         return if (memberNickname != null) toDoCard.member.nickname.eq(memberNickname) else null
+    }
+
+    private fun deletedAtIsNull(): BooleanExpression {
+        return toDoCard.deletedAt.isNull
     }
 }
