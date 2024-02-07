@@ -40,6 +40,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
     kapt("com.querydsl:querydsl-apt:$queryDslVersion:jakarta")
 
@@ -49,7 +50,7 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
 
-    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 }
