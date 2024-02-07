@@ -1,0 +1,15 @@
+# https://velog.io/@max9106/OAuth4 참고
+oauth2:
+  provider-properties-map:
+    KAKAO:
+      o-auth2-provider: KAKAO
+      auth-base-uri: TODO
+      client-id: TODO
+      redirect-uri: http://localhost:8080/oauth2/callback/kakao
+      api-base-uri: TODO
+    NAVER:
+      o-auth2-provider: NAVER
+      auth-base-uri: TODO
+      client-id: TODO
+      redirect-uri: http://localhost:8080/oauth2/callback/naver
+      api-base-uri: TODO
