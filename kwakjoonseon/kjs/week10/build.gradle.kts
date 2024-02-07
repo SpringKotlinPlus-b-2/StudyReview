@@ -64,7 +64,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 
     // H2 database
-     implementation("com.h2database:h2")
+    implementation("com.h2database:h2")
 
     // Kotest
     testImplementation("io.kotest:kotest-runner-junit5:5.7.2")
@@ -78,4 +78,7 @@ dependencies {
     // queryDSL
     implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
     kapt("com.querydsl:querydsl-apt:$queryDslVersion:jakarta")
+
+    // kotlin logging
+    implementation("io.github.oshai:kotlin-logging-jvm:6.0.2")
 }

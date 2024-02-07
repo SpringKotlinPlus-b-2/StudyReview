@@ -6,7 +6,14 @@ values ('제목1', '할 일 상세1', 1, CURRENT_TIMESTAMP - 25),
        ('제목5', '내용5', 2, CURRENT_TIMESTAMP- 5);
 
 insert into comment(content, member_id, created_date_time, to_do_card_id)
-values ('댓글이야', '1', CURRENT_TIMESTAMP - 20, 1),
-       ('2댓글', '1', CURRENT_TIMESTAMP - 15, 1),
-       ('댓글 내용입니다', '1', CURRENT_TIMESTAMP - 10, 2),
-       ('아무 댓글', '2', CURRENT_TIMESTAMP - 5, 2);
+values ('댓글이야', 1, CURRENT_TIMESTAMP - 20, 1),
+       ('2댓글', 2, CURRENT_TIMESTAMP - 15, 1),
+       ('댓글 내용입니다', 1, CURRENT_TIMESTAMP - 10, 2),
+       ('아무 댓글', 2, CURRENT_TIMESTAMP - 5, 2);
+
+-- member 로컬 테스트 데이터
+-- 1. email: test, password: test
+-- 2. email: test2, password: test
+insert into member(email, password, nickname)
+values ('test', '$2a$10$4SGkZKr9t8xKCVaxMc/o7ugMbfcxZA00AszP7Z/mFVOkdZD0xZNaK', 'test'),
+       ('test2', '$2a$10$4SGkZKr9t8xKCVaxMc/o7ugMbfcxZA00AszP7Z/mFVOkdZD0xZNaK', 'test2');

@@ -47,13 +47,6 @@ class GlobalExceptionHandler {
             .body(ErrorResponse(message = e.message))
     }
 
-    @ExceptionHandler(IncorrectRelatedEntityIdException::class)
-    fun handleIncorrectRelatedEntityIdException(e: IncorrectRelatedEntityIdException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(message = e.message))
-    }
-
     @ExceptionHandler(StringLengthOutOfRangeException::class)
     fun handleStringLengthOutOfRangeException(e: StringLengthOutOfRangeException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
