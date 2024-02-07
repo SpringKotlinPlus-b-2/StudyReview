@@ -31,17 +31,29 @@ class ToDoCardController(
     @GetMapping
     fun getToDoCardList(
         @RequestParam(required = false) title: String?,
+        @RequestParam(required = false) category: String?,
+        @RequestParam(required = false) tag: String?,
+        @RequestParam(required = false) state: String?,
+        @RequestParam(required = false) dayDuration: String?,
         @RequestParam(required = false) memberNickname: String?,
         @RequestParam(required = false, defaultValue = "0") page: Int,
         @RequestParam(required = false, name = "sort", defaultValue = "DESC") sortOrder: Sort.Direction,
     ): ResponseEntity<Page<ToDoCardResponse>> {
         val pageable: Pageable = PageRequest.of(page, TO_DO_CARD_PAGE_SIZE, sortOrder, TO_DO_CARD_SORT_PROPERTY)
 
-        val toDoCardResponsesPage = toDoCardService.getToDoCardList(title, memberNickname, pageable)
+        val toDoCardResponsePage = toDoCardService.getToDoCardList(
+            title = title,
+            category = category,
+            tag = tag,
+            state = state,
+            dayDuration = dayDuration,
+            memberNickname = memberNickname,
+            pageable = pageable,
+        )
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(toDoCardResponsesPage)
+            .body(toDoCardResponsePage)
     }
 
     @GetMapping("/{toDoCardId}")

@@ -8,10 +8,13 @@ create table to_do_card
     created_at        timestamp(6) not null,
     last_modified_at  timestamp(6) not null,
     deleted_at        timestamp(6),
+    member_id         bigint not null,
     title             varchar(255) not null,
     description       varchar(255),
-    member_id         bigint not null,
     is_complete       boolean default false,
+    category          varchar(31) default null,
+    tag               varchar(31) default null,
+    state             varchar(31) default null,
     primary key (id)
 );
 create table comment
@@ -21,7 +24,7 @@ create table comment
     last_modified_at  timestamp(6) not null,
     deleted_at        timestamp(6),
     content           varchar(255),
-    member_id           bigint not null,
+    member_id         bigint not null,
     to_do_card_id     bigint not null,
     primary key (id)
 );

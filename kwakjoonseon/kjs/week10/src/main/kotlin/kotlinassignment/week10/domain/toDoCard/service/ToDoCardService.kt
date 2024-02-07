@@ -9,11 +9,23 @@ interface ToDoCardService {
 
     /**
      * @param title (type: String?) ToDoCard 조회 시 title로 필터링할 경우 필요
+     * @param category (type: String?) ToDoCard 조회 시 category로 필터링할 경우 필요
+     * @param tag (type: String?) ToDoCard 조회 시 tag로 필터링할 경우 필요
+     * @param state (type: String?) ToDoCard 조회 시 state 필터링할 경우 필요
+     * @param dayDuration (type: String?) ToDoCard 조회 시 dayDuration로 필터링할 경우 필요
      * @param memberNickname (type: String?) ToDoCard 조회 시 member의 nickname으로 필터링할 경우 필요
      * @param pageable (type: Pageable) ToDoCard 목록을 가져올 때 필요한 page number, page size, sort 등의 정보를 담은 pageable
      * @return (type: Page<ToDoCardResponse>) ToDoCard 데이터 목록을 Page 형태로 담아 반환
      */
-    fun getToDoCardList(title: String?, memberNickname: String?, pageable: Pageable): Page<ToDoCardResponse>
+    fun getToDoCardList(
+        title: String?,
+        category: String?,
+        tag: String?,
+        state: String?,
+        dayDuration: String?,
+        memberNickname: String?,
+        pageable: Pageable
+    ): Page<ToDoCardResponse>
 
     /**
      * @param toDoCardId (type: Long) 조회할 ToDoCard의 id
