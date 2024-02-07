@@ -1,14 +1,16 @@
 package kotlinassignment.week10.domain.member.model
 
 import jakarta.persistence.*
+import kotlinassignment.week10.domain.util.BaseEntity
 
 @Entity
-@Table(name = "member")
 class Member(
     val email: String,
+
     var password: String,
+
     var nickname: String,
-) {
+) : BaseEntity() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

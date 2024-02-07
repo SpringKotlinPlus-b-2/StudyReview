@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
 class CommentServiceImpl(
@@ -22,7 +23,7 @@ class CommentServiceImpl(
 ) : CommentService {
 
     override fun getCommentList(toDoCardId: Long, pageable: Pageable): Page<CommentResponse> {
-        return commentRepository.findByToDoCard_IdOrderByIdDesc(toDoCardId, pageable).map { it.toResponse() }
+        return commentRepository.findByToDoCard_IdAndDeletedAtIsNullOrderByIdDesc(toDoCardId, pageable).map { it.toResponse() }
     }
 
     @Transactional
@@ -33,7 +34,6 @@ class CommentServiceImpl(
         return Comment(
             content = request.content,
             member = member,
-            createdDateTime = request.createdDateTime,
             toDoCard = targetToDoCard,
         ).let { commentRepository.save(it).toResponse() }
     }
@@ -45,19 +45,19 @@ class CommentServiceImpl(
         request: CommentUpdateRequest,
         memberPrincipal: MemberPrincipal
     ): CommentResponse {
-        val targetComment = commentRepository.findByIdAndToDoCard_Id(commentId, toDoCardId)
+        val targetComment = commentRepository.findByIdAndToDoCard_IdAndDeletedAtIsNull(commentId, toDoCardId)
             ?: throw ModelNotFoundException("Comment", commentId)
-        check(targetComment.member.id != memberPrincipal.id) { throw UnauthorizedAccessException() }
+        check(targetComment.member.id == memberPrincipal.id) { throw UnauthorizedAccessException() }
 
         return targetComment.updateFrom(request).toResponse()
     }
 
     @Transactional
     override fun deleteComment(toDoCardId: Long, commentId: Long, memberPrincipal: MemberPrincipal): Unit {
-        val targetComment = commentRepository.findByIdAndToDoCard_Id(commentId, toDoCardId)
+        val targetComment = commentRepository.findByIdAndToDoCard_IdAndDeletedAtIsNull(commentId, toDoCardId)
             ?: throw ModelNotFoundException("Comment", commentId)
-        check(targetComment.member.id != memberPrincipal.id) { throw UnauthorizedAccessException() }
+        check(targetComment.member.id == memberPrincipal.id) { throw UnauthorizedAccessException() }
 
-        commentRepository.delete(targetComment)
+        targetComment.deletedAt = LocalDateTime.now()
     }
 }
