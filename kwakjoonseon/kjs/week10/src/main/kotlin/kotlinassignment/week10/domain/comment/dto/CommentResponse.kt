@@ -1,5 +1,6 @@
 package kotlinassignment.week10.domain.comment.dto
 
+import kotlinassignment.week10.domain.comment.model.Comment
 import java.time.LocalDateTime
 
 data class CommentResponse(
@@ -9,3 +10,13 @@ data class CommentResponse(
     val createdDateTime: LocalDateTime,
     val toDoCardId: Long,
 )
+
+fun Comment.toResponse(): CommentResponse {
+    return CommentResponse(
+        id = this.id!!,
+        content = this.content,
+        memberNickname = this.member.nickname,
+        createdDateTime = this.createdDateTime,
+        toDoCardId = this.toDoCard.id!!,
+    )
+}

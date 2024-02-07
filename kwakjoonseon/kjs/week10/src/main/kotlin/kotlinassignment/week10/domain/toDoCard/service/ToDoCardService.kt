@@ -2,21 +2,24 @@ package kotlinassignment.week10.domain.toDoCard.service
 
 import kotlinassignment.week10.domain.toDoCard.dto.*
 import kotlinassignment.week10.infra.security.MemberPrincipal
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 interface ToDoCardService {
 
     /**
-     * @param memberNickname (type: String?) ToDoCard 조회 시 userName으로 필터링할 경우 필요
-     * @param sortOrder (type: String) ToDoCard 조회 시 정렬할 방향
-     * @return (type: List<ToDoCardResponse>) 조회한 ToDoCard List를 반환
+     * @param title (type: String?) ToDoCard 조회 시 title로 필터링할 경우 필요
+     * @param memberNickname (type: String?) ToDoCard 조회 시 member의 nickname으로 필터링할 경우 필요
+     * @param pageable (type: Pageable) ToDoCard 목록을 가져올 때 필요한 page number, page size, sort 등의 정보를 담은 pageable
+     * @return (type: Page<ToDoCardResponse>) ToDoCard 데이터 목록을 Page 형태로 담아 반환
      */
-    fun getToDoCardList(title: String?, memberNickname: String?, sortOrder: String): List<ToDoCardResponse>
+    fun getToDoCardList(title: String?, memberNickname: String?, pageable: Pageable): Page<ToDoCardResponse>
 
     /**
      * @param toDoCardId (type: Long) 조회할 ToDoCard의 id
-     * @return (type: ToDoCardResponseWithComments) parameter로 받은 ToDoCard id와 일치하는 id를 가진 ToDoCard 조회 결과 반환
+     * @return (type: ToDoCardResponse) parameter로 받은 ToDoCard id와 일치하는 id를 가진 ToDoCard 조회 결과 반환
      */
-    fun getToDoCardById(toDoCardId: Long): ToDoCardResponseWithComments
+    fun getToDoCardById(toDoCardId: Long): ToDoCardResponse
 
     /**
      * @param request (type: ToDoCardCreateRequest) ToDoCard 생성을 위한 DTO

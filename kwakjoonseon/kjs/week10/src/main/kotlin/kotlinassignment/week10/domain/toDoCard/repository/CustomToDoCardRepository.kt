@@ -1,12 +1,14 @@
 package kotlinassignment.week10.domain.toDoCard.repository
 
 import kotlinassignment.week10.domain.toDoCard.model.ToDoCard
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 interface CustomToDoCardRepository {
 
-    fun findAllFilteringByTitleOrUserNameWithSortOrder(
+    fun findAllFilteringByTitleOrUserName(
         title: String?,
         memberNickname: String?,
-        sortOrder: String,
-    ): List<ToDoCard>
+        pageable: Pageable,
+    ): Page<ToDoCard>
 }

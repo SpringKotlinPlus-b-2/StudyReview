@@ -1,10 +1,16 @@
 package kotlinassignment.week10.domain.toDoCard.controller
 
 import jakarta.validation.Valid
-import kotlinassignment.week10.domain.toDoCard.dto.*
+import kotlinassignment.week10.domain.toDoCard.dto.ToDoCardCreateRequest
+import kotlinassignment.week10.domain.toDoCard.dto.ToDoCardIsCompletePatchRequest
+import kotlinassignment.week10.domain.toDoCard.dto.ToDoCardResponse
+import kotlinassignment.week10.domain.toDoCard.dto.ToDoCardUpdateRequest
 import kotlinassignment.week10.domain.toDoCard.service.ToDoCardService
 import kotlinassignment.week10.infra.security.MemberPrincipal
-import kotlinassignment.week10.infra.util.SortOrder
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -26,22 +32,25 @@ class ToDoCardController(
     fun getToDoCardList(
         @RequestParam(required = false) title: String?,
         @RequestParam(required = false) memberNickname: String?,
-        @RequestParam(required = false, name = "sort", defaultValue = "DESC") sortOrder: SortOrder,
-    ): ResponseEntity<List<ToDoCardResponse>> {
-        val toDoCardResponsesList = toDoCardService.getToDoCardList(title, memberNickname, sortOrder.name)
+        @RequestParam(required = false, defaultValue = "0") page: Int,
+        @RequestParam(required = false, name = "sort", defaultValue = "DESC") sortOrder: Sort.Direction,
+    ): ResponseEntity<Page<ToDoCardResponse>> {
+        val pageable: Pageable = PageRequest.of(page, TO_DO_CARD_PAGE_SIZE, sortOrder, TO_DO_CARD_SORT_PROPERTY)
+
+        val toDoCardResponsesPage = toDoCardService.getToDoCardList(title, memberNickname, pageable)
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(toDoCardResponsesList)
+            .body(toDoCardResponsesPage)
     }
 
     @GetMapping("/{toDoCardId}")
-    fun getToDoCard(@PathVariable toDoCardId: Long): ResponseEntity<ToDoCardResponseWithComments> {
-        val toDoCardResponseWithComments = toDoCardService.getToDoCardById(toDoCardId)
+    fun getToDoCard(@PathVariable toDoCardId: Long): ResponseEntity<ToDoCardResponse> {
+        val toDoCardResponse = toDoCardService.getToDoCardById(toDoCardId)
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(toDoCardResponseWithComments)
+            .body(toDoCardResponse)
     }
 
     @PostMapping
@@ -69,6 +78,19 @@ class ToDoCardController(
             .body(toDoCardResponse)
     }
 
+    @PatchMapping("/{toDoCardId}")
+    fun completeToDoCard(
+        @PathVariable toDoCardId: Long,
+        @Valid @RequestBody request: ToDoCardIsCompletePatchRequest,
+        @AuthenticationPrincipal memberPrincipal: MemberPrincipal,
+    ): ResponseEntity<ToDoCardResponse> {
+        val toDoCardResponse = toDoCardService.completeToDoCard(toDoCardId, request, memberPrincipal)
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(toDoCardResponse)
+    }
+
     @DeleteMapping("/{toDoCardId}")
     fun deleteToDoCard(
         @PathVariable toDoCardId: Long,
@@ -81,16 +103,8 @@ class ToDoCardController(
             .build()
     }
 
-    @PatchMapping("/{toDoCardId}")
-    fun completeToDoCard(
-        @PathVariable toDoCardId: Long,
-        @Valid @RequestBody request: ToDoCardIsCompletePatchRequest,
-        @AuthenticationPrincipal memberPrincipal: MemberPrincipal,
-    ): ResponseEntity<ToDoCardResponse> {
-        val toDoCardResponse = toDoCardService.completeToDoCard(toDoCardId, request, memberPrincipal)
-
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(toDoCardResponse)
+    companion object {
+        private const val TO_DO_CARD_PAGE_SIZE = 5
+        private const val TO_DO_CARD_SORT_PROPERTY = "createdDateTime"
     }
 }

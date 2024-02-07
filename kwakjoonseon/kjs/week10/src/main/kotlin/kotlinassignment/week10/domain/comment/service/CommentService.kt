@@ -4,8 +4,17 @@ import kotlinassignment.week10.domain.comment.dto.CommentCreateRequest
 import kotlinassignment.week10.domain.comment.dto.CommentResponse
 import kotlinassignment.week10.domain.comment.dto.CommentUpdateRequest
 import kotlinassignment.week10.infra.security.MemberPrincipal
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 interface CommentService {
+
+    /**
+     * @param toDoCardId (type: Long) Comment와 연관된 ToDoCard의 id
+     * @param pageable (type: CommentCreateRequest) Comment 목록을 가져올 때 필요한 page number, page size, sort 등의 정보를 담은 pageable
+     * @return (type: Page<CommentResponse>) Comment 데이터 목록을 Page 형태로 담아 반환
+     */
+    fun getCommentList(toDoCardId: Long, pageable: Pageable): Page<CommentResponse>
 
     /**
      * @param toDoCardId (type: Long) Comment와 연관된 ToDoCard의 id

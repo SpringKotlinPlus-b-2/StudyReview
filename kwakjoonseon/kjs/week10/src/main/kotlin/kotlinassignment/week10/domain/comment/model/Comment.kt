@@ -1,8 +1,6 @@
 package kotlinassignment.week10.domain.comment.model
 
 import jakarta.persistence.*
-import kotlinassignment.week10.domain.comment.dto.CommentResponse
-import kotlinassignment.week10.domain.comment.dto.CommentUpdateRequest
 import kotlinassignment.week10.domain.member.model.Member
 import kotlinassignment.week10.domain.toDoCard.model.ToDoCard
 import java.time.LocalDateTime
@@ -26,18 +24,4 @@ class Comment(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
-}
-
-fun Comment.toResponse(): CommentResponse {
-    return CommentResponse(
-        id = this.id!!,
-        content = this.content,
-        memberNickname = this.member.nickname,
-        createdDateTime = this.createdDateTime,
-        toDoCardId = this.toDoCard.id!!,
-    )
-}
-
-fun Comment.updateFrom(request: CommentUpdateRequest) {
-    this.content = request.content
 }
