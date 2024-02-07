@@ -33,8 +33,14 @@ class ToDoCard(
             field = getStringAfterLengthValidation(value, "description", minLength = DESCRIPTION_MIN_LENGTH, maxLength = DESCRIPTION_MAX_LENGTH)
         }
 
-    @Column(columnDefinition = "boolean default false") // https://m.blog.naver.com/younjh5369/222763814571 // https://www.baeldung.com/jpa-default-column-values
-    var isComplete: Boolean = false
+    // https://m.blog.naver.com/younjh5369/222763814571 // https://www.baeldung.com/jpa-default-column-values
+    @Column(columnDefinition = "boolean default false") var isComplete: Boolean = false
+
+    @Column var category: String? = null
+
+    @Column var tag: String? = null
+
+    @Column var state: String? = null // TODO category, tag, state 관련 조금 더 정제할 것
 
     private fun getStringAfterLengthValidation(target: String, propertyName: String, minLength: Long, maxLength: Long): String {
         if (target.length in minLength..maxLength)

@@ -21,10 +21,28 @@ class ToDoCardServiceImpl(
     private val memberRepository: MemberRepository,
 ): ToDoCardService {
 
-    override fun getToDoCardList(title: String?, memberNickname: String?, pageable: Pageable): Page<ToDoCardResponse> {
-        return toDoCardRepository
-            .findAllFilteringByTitleOrUserName(title, memberNickname, pageable)
-            .map(ToDoCard::toResponse)
+    @EvaluateExecutionTime
+    override fun getToDoCardList(
+        title: String?,
+        category: String?,
+        tag: String?,
+        state: String?,
+        dayDuration: String?,
+        memberNickname: String?,
+        pageable: Pageable
+    ): Page<ToDoCardResponse> {
+
+        val toDoCardPage = toDoCardRepository.findAllFilteringByTitleOrUserName(
+            title = title,
+            category = category,
+            tag = tag,
+            state = state,
+            dayDuration = dayDuration,
+            memberNickname = memberNickname,
+            pageable = pageable,
+        )
+
+        return toDoCardPage.map(ToDoCard::toResponse)
     }
 
     @EvaluateExecutionTime
