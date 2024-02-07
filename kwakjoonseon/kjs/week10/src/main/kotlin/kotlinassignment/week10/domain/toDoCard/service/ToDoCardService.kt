@@ -6,11 +6,11 @@ import kotlinassignment.week10.infra.security.MemberPrincipal
 interface ToDoCardService {
 
     /**
-     * @param userName (type: String?) ToDoCard 조회 시 userName으로 필터링할 경우 필요
+     * @param memberNickname (type: String?) ToDoCard 조회 시 userName으로 필터링할 경우 필요
      * @param sortOrder (type: String) ToDoCard 조회 시 정렬할 방향
      * @return (type: List<ToDoCardResponse>) 조회한 ToDoCard List를 반환
      */
-    fun getAllToDoCards(userName: String?, sortOrder: String): List<ToDoCardResponse>
+    fun getToDoCardList(title: String?, memberNickname: String?, sortOrder: String): List<ToDoCardResponse>
 
     /**
      * @param toDoCardId (type: Long) 조회할 ToDoCard의 id

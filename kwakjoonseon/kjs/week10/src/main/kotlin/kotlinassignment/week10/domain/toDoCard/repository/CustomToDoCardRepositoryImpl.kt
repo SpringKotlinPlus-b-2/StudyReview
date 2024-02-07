@@ -1,5 +1,6 @@
 package kotlinassignment.week10.domain.toDoCard.repository
 
+import com.querydsl.core.types.dsl.BooleanExpression
 import kotlinassignment.week10.domain.toDoCard.model.QToDoCard
 import kotlinassignment.week10.domain.toDoCard.model.ToDoCard
 import kotlinassignment.week10.infra.querydsl.QueryDslSupport
@@ -10,12 +11,14 @@ class CustomToDoCardRepositoryImpl : CustomToDoCardRepository, QueryDslSupport()
 
     private val toDoCard = QToDoCard.toDoCard
 
-    override fun findAllFilterByUserNameAndOrderBySortOrder(
-        userName: String?,
+    override fun findAllFilteringByTitleOrUserNameWithSortOrder(
+        title: String?,
+        memberNickname: String?,
         sortOrder: String,
     ): List<ToDoCard> {
         return queryFactory.selectFrom(toDoCard)
-            .let { if (userName != null) it.where(toDoCard.member.email.eq(userName)) else it } // TODO 컴파일 에러 방지용 임시 저장
+            .where(titleContains(title))
+            .where(memberNicknameEq(memberNickname))
             .orderBy(
                 when (sortOrder) {
                     "ASC" -> toDoCard.createdDateTime.asc()
@@ -23,5 +26,13 @@ class CustomToDoCardRepositoryImpl : CustomToDoCardRepository, QueryDslSupport()
                     else -> toDoCard.createdDateTime.desc()
                 }
             ).fetch()
+    }
+
+    private fun titleContains(title: String?): BooleanExpression? {
+        return if (title != null) toDoCard.title.contains(title) else null
+    }
+
+    private fun memberNicknameEq(memberNickname: String?): BooleanExpression? {
+        return if (memberNickname != null) toDoCard.member.nickname.eq(memberNickname) else null
     }
 }

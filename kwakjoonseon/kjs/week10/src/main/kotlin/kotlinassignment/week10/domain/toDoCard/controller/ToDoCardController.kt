@@ -24,10 +24,11 @@ class ToDoCardController(
 
     @GetMapping
     fun getToDoCardList(
-        @RequestParam(required = false) userName: String?,
+        @RequestParam(required = false) title: String?,
+        @RequestParam(required = false) memberNickname: String?,
         @RequestParam(required = false, name = "sort", defaultValue = "DESC") sortOrder: SortOrder,
     ): ResponseEntity<List<ToDoCardResponse>> {
-        val toDoCardResponsesList = toDoCardService.getAllToDoCards(userName, sortOrder.name)
+        val toDoCardResponsesList = toDoCardService.getToDoCardList(title, memberNickname, sortOrder.name)
 
         return ResponseEntity
             .status(HttpStatus.OK)

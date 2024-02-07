@@ -5,5 +5,4 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface ToDoCardRepository : JpaRepository<ToDoCard, Long>, CustomToDoCardRepository {
 
-    fun findAllByOrderByCreatedDateTimeDescIdDesc(): List<ToDoCard>
 }
